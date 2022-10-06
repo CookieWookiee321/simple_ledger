@@ -10,7 +10,7 @@ class LedgerEntry {
   DateTime date;
 
   @HiveField(1)
-  List<TransactionEntry> transactionList;
+  List<TransactionModel> transactionList;
 
   String get dateShortString {
     var format = DateFormat('dd');
@@ -58,7 +58,7 @@ class Testing {
       LedgerEntry(
           date: DateTime.now(),
           transactionList:
-              List<TransactionEntry>.filled(1, TransactionEntry(date: DateTime.now(), amount: 150))
+              List<TransactionModel>.filled(1, TransactionModel(date: DateTime.now(), amount: 150))
       )
   );
 }

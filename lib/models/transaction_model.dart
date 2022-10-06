@@ -1,8 +1,8 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 @HiveType(typeId: 3)
-class TransactionEntry {
-  TransactionEntry({required this.date, required this.amount, this.description = "Transaction"});
+class TransactionModel {
+  TransactionModel({required this.date, required this.amount, this.description = ""});
 
   @HiveField(0)
   DateTime date;
@@ -15,6 +15,6 @@ class TransactionEntry {
 }
 
 class Testing {
-  static final sampleExpenseData = TransactionEntry(date: DateTime.now(), amount: -50);
-  static final sampleIncomeData = TransactionEntry(date: DateTime.now(), amount: 100);
+  static final sampleExpenseData = TransactionModel(date: DateTime.now(), amount: -50);
+  static final sampleIncomeData = TransactionModel(date: DateTime.now(), amount: 100);
 }

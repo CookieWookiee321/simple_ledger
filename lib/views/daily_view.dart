@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:simple_ledger/controllers/daily_view_controller.dart';
 import '../models/transaction_model.dart';
 
 class _DailyViewPageState extends State<DailyViewPage>
@@ -71,25 +70,10 @@ class _DailyViewPageState extends State<DailyViewPage>
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
                     onPressed: () => {
-                      showDialog(context: context,
+                      showDialog(
+                          context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("New Transaction"),
-                              content: Padding(padding: EdgeInsets.all(10.0),
-                              child: Column(
-                                children: [
-                                  Text("Date"),
-                                  TextField(
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(13.0)
-                                    ),
-                                      focusColor: Theme.of(context).colorScheme.primary
-                                  ),
-                                  ),
-                                ],
-                              ),),
-                            );
+                            return const TransactionMenuDialog();
                           })
                     },
                   )),
@@ -108,7 +92,18 @@ class DailyViewPage extends StatefulWidget {
   State<DailyViewPage> createState() => _DailyViewPageState();
 }
 
-//region WIDGETS
+//==============================================================================
+// Widgets
+//==============================================================================
+///A row which contains all information about a single transaction.
+class TransactionRow extends StatefulWidget {
+  final TransactionModel entry;
+  const TransactionRow({Key? key, required TransactionModel this.entry})
+      : super(key: key);
+
+  @override
+  State<TransactionRow> createState() => _TransactionRowState();
+}
 
 class _TransactionRowState extends State<TransactionRow> {
   @override
@@ -155,13 +150,103 @@ class _TransactionRowState extends State<TransactionRow> {
   }
 }
 
-class TransactionRow extends StatefulWidget {
-  final TransactionEntry entry;
-  const TransactionRow({Key? key, required TransactionEntry this.entry})
-      : super(key: key);
+///A dialog for the user to choose which type of tranaction they want to input.
+class TransactionMenuDialog extends StatefulWidget {
+  const TransactionMenuDialog({super.key});
 
   @override
-  State<TransactionRow> createState() => _TransactionRowState();
+  State<TransactionMenuDialog> createState() => _TransactionMenuDialogState();
+}
+
+class _TransactionMenuDialogState extends State<TransactionMenuDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+        title: const Center(
+          child: Text("Transaction Type"),
+        ),
+        content: Container(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const StandardTransactionDialog();
+                          });
+                    },
+                    child: const Text("Standard Transaction")),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 8.0)),
+                ElevatedButton(
+                    onPressed: () {},
+                    child: const Text("Repeating Transaction")),
+              ],
+            ),
+          ),
+        ));
+  }
+}
+
+///A dialog box for inputting a once-off transaction
+class StandardTransactionDialog extends StatefulWidget {
+  const StandardTransactionDialog({super.key});
+
+  @override
+  State<StandardTransactionDialog> createState() =>
+      _StandardTransactionDialogState();
+}
+
+class _StandardTransactionDialogState extends State<StandardTransactionDialog> {
+  late DateTime date = DateTime.now();
+  late String dateStr = "${date.day}-${date.month}-${date.year}";
+  late double amount;
+  late String description;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000, 1),
+        lastDate: DateTime(2101));
+
+    if (picked != null && picked != date) {
+      setState(() {
+        date = picked;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+        title: const Center(
+          child: Text("New Transaction"),
+        ),
+        content: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Date"),
+              TextFormField(
+                initialValue: dateStr,
+                textAlign: TextAlign.center,
+                onTap: () {
+                  _selectDate(context);
+                },
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(13.0)),
+                    focusColor: Theme.of(context).colorScheme.primary),
+              ),
+            ],
+          ),
+        ));
+  }
 }
 
 //endregion
