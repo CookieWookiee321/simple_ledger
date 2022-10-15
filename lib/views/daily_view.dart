@@ -49,8 +49,8 @@ class _DailyViewPageState extends State<DailyViewPage>
                   padding: const EdgeInsets.all(6.0),
                   child: Column(
                     children: [
-                      TransactionRow(entry: Testing.sampleExpenseData),
-                      TransactionRow(entry: Testing.sampleIncomeData),
+                      // TransactionRow(entry: Testing.sampleExpenseData),
+                      // TransactionRow(entry: Testing.sampleIncomeData),
                     ],
                   ),
                 ),
@@ -101,8 +101,8 @@ class DailyViewPage extends StatefulWidget {
 ///A row which contains all information about a single transaction.
 class TransactionRow extends StatefulWidget {
   final Transaction entry;
-  const TransactionRow({Key? key, required Transaction this.entry})
-      : super(key: key);
+
+  const TransactionRow({Key? key, required this.entry}) : super(key: key);
 
   @override
   State<TransactionRow> createState() => _TransactionRowState();
@@ -112,7 +112,7 @@ class _TransactionRowState extends State<TransactionRow> {
   @override
   Widget build(BuildContext context) {
     //for income
-    if (widget.entry.amount > 0.0) {
+    if (widget.entry.amount! > 0.0) {
       return Container(
           decoration: BoxDecoration(
               border: Border(
@@ -126,7 +126,7 @@ class _TransactionRowState extends State<TransactionRow> {
                 Icons.monetization_on,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              title: Text(widget.entry.description),
+              title: Text(widget.entry.description!),
               trailing: Text("+${widget.entry.amount}"),
             ),
           )));
@@ -146,7 +146,7 @@ class _TransactionRowState extends State<TransactionRow> {
                   Icons.monetization_on,
                   color: Theme.of(context).colorScheme.errorContainer,
                 ),
-                title: Text(widget.entry.description),
+                title: Text(widget.entry.description!),
                 trailing: Text(widget.entry.amount.toString())),
           )));
     }
