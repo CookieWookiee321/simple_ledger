@@ -1,20 +1,30 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:isar/isar.dart';
 
-@HiveType(typeId: 3)
-class TransactionModel {
-  TransactionModel({required this.date, required this.amount, this.description = ""});
+part 'transaction_model.g.dart';
 
-  @HiveField(0)
-  DateTime date;
+@embedded
+class Transaction {
+  DateTime? _date;
+  int? _amount;
+  String? _description;
 
-  @HiveField(1)
-  int amount;
+  Transaction();
 
-  @HiveField(2)
-  String description;
-}
+  DateTime? get date => _date;
 
-class Testing {
-  static final sampleExpenseData = TransactionModel(date: DateTime.now(), amount: -50);
-  static final sampleIncomeData = TransactionModel(date: DateTime.now(), amount: 100);
+  set date(DateTime? value) {
+    _date = value;
+  }
+
+  int? get amount => _amount;
+
+  set amount(int? value) {
+    _amount = value;
+  }
+
+  String? get description => _description;
+
+  set description(String? value) {
+    _description = value;
+  }
 }

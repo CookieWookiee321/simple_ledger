@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:simple_ledger/models/profile_model.dart';
 
 class HomePageController extends ChangeNotifier {
@@ -7,8 +6,7 @@ class HomePageController extends ChangeNotifier {
   //Profile currentProfile =
 
   void addProfile(Profile profile) {
-    final profilesBox = Hive.box('profiles');
-    profilesBox.add(profile);
+    //profilesBox.add(profile);
   }
 
   //List<Profile> getProfilesList() {

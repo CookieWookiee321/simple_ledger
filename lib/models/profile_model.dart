@@ -1,25 +1,16 @@
-import 'package:hive/hive.dart';
+import 'package:isar/isar.dart';
 
-@HiveType(typeId: 1)
+part 'profile_model.g.dart';
+
+@collection
 class Profile {
-  Profile({
-    required this.id,
-    required this.name,
-    this.password = ""
-  });
+  Id id = Isar.autoIncrement;
+  String? name;
 
-  @HiveField(0)
-  int id;
-
-  @HiveField(1)
-  String name;
-
-  //TODO: Research password encryption
-  @HiveField(2)
-  String password;
+  Profile(this.name);
 
   @override
   String toString() {
-    return name;
+    return name!;
   }
 }

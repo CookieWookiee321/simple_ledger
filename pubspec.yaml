@@ -35,14 +35,14 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   shared_preferences:
-  hive:
-  hive_flutter:
   path_provider:
   intl: ^0.17.0
+  isar: ^3.0.2
+  isar_flutter_libs: ^3.0.2
+  pointycastle: ^3.6.2
 
 dev_dependencies:
-  hive_generator:
-  build_runner:
+  build_runner: ^2.3.0
   flutter_test:
     sdk: flutter
 
@@ -52,6 +52,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  isar_generator: ^3.0.2
 
 
 

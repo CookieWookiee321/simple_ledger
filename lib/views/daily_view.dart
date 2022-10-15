@@ -21,66 +21,69 @@ class _DailyViewPageState extends State<DailyViewPage>
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Daily Transactions",
-      theme: ThemeData(
-          brightness: Brightness.light,
-          primarySwatch: Colors.green,
-          fontFamily: 'Arial'),
+      title: "Daily View",
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Daily Transactions"),
-        ),
-        body: Column(
-          children: [
-            //HEADING - date
-            Padding(
-              padding: const EdgeInsets.all(13.0),
-              child: Center(
-                child: Text(
-                  DateFormat.yMMMMd().format(DateTime.now()),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-              ),
-            ),
-
-            //BODY
-            Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Column(
-                children: [
-                  TransactionRow(entry: Testing.sampleExpenseData),
-                  TransactionRow(entry: Testing.sampleIncomeData),
-                ],
-              ),
-            ),
-
-            const Expanded(
-                child: Padding(
-              padding: EdgeInsets.zero,
-            )),
-
-            //FOOTER - "Add" button
-            Padding(
-              padding: const EdgeInsets.all(13.0),
-              child: SizedBox(
-                  width: double.infinity,
-                  child: FloatingActionButton(
-                    child: Icon(
-                      Icons.add_circle,
-                      color: Theme.of(context).colorScheme.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.background,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            title: const Text("Daily View"),
+          ),
+          body: Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Column(
+              children: [
+                //HEADING - date
+                Padding(
+                  padding: const EdgeInsets.all(13.0),
+                  child: Center(
+                    child: Text(
+                      DateFormat.yMMMMd().format(DateTime.now()),
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    onPressed: () => {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const TransactionMenuDialog();
-                          })
-                    },
-                  )),
-            )
-          ],
-        ),
-      ),
+                  ),
+                ),
+
+                //BODY
+                Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Column(
+                    children: [
+                      TransactionRow(entry: Testing.sampleExpenseData),
+                      TransactionRow(entry: Testing.sampleIncomeData),
+                    ],
+                  ),
+                ),
+
+                const Expanded(
+                    child: Padding(
+                  padding: EdgeInsets.zero,
+                )),
+
+                //FOOTER - "Add" button
+                Padding(
+                  padding: const EdgeInsets.all(13.0),
+                  child: SizedBox(
+                      width: double.infinity,
+                      child: FloatingActionButton(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        child: Icon(
+                          Icons.add_circle,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                        onPressed: () => {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const TransactionMenuDialog();
+                              })
+                        },
+                      )),
+                )
+              ],
+            ),
+          )),
     );
   }
 }
@@ -97,8 +100,8 @@ class DailyViewPage extends StatefulWidget {
 //==============================================================================
 ///A row which contains all information about a single transaction.
 class TransactionRow extends StatefulWidget {
-  final TransactionModel entry;
-  const TransactionRow({Key? key, required TransactionModel this.entry})
+  final Transaction entry;
+  const TransactionRow({Key? key, required Transaction this.entry})
       : super(key: key);
 
   @override

@@ -1,64 +1,59 @@
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:isar/isar.dart';
 import 'package:simple_ledger/models/transaction_model.dart';
 
-@HiveType(typeId: 4)
+part 'ledger_model.g.dart';
+
+@collection
 class LedgerEntry {
-  LedgerEntry({required this.date, required this.transactionList});
+  Id id = Isar.autoIncrement;
+  double? amount;
+  List<Transaction>? transactions;
 
-  @HiveField(0)
-  DateTime date;
+  LedgerEntry();
+  LedgerEntry.withData(this.amount, List<Transaction>? transactions);
 
-  @HiveField(1)
-  List<TransactionModel> transactionList;
+  // String get dateShortString {
+  //   var format = DateFormat('dd');
+  //   return date != null ? format.format(date!) : "[Date not initialized]";
+  // }
 
-  String get dateShortString {
-    var format = DateFormat('dd');
-    return format.format(date);
-  }
+  // double get grossTotal {
+  //   if (transactionList == null || transactionList!.isEmpty) return 0;
 
-  double get grossTotal {
-    var ret = 0.0;
+  //   var ret = 0.0;
 
-    for (var e in transactionList) {
-      ret += e.amount;
-    }
+  //   for (var e in transactionList!) {
+  //     ret += e.amount!;
+  //   }
 
-    return ret;
-  }
+  //   return ret;
+  // }
 
-  double get expensesTotal {
-    var ret = 0.0;
+  // @embedded
+  // double get expensesTotal {
+  //   if (transactionList == null || transactionList!.isEmpty) return 0;
+  //   var ret = 0.0;
 
-    for (var e in transactionList) {
-      if (e.amount < 0.0) {
-        ret += e.amount;
-      }
-    }
+  //   for (var e in transactionList!) {
+  //     if (e.amount! < 0.0) {
+  //       ret += e.amount!;
+  //     }
+  //   }
 
-    return ret;
-  }
+  //   return ret;
+  // }
 
-  double get incomeTotal {
-    var ret = 0.0;
+  // double get incomeTotal {
+  //   if (transactionList == null || transactionList!.isEmpty) return 0;
+  //   var ret = 0.0;
 
-    for (var e in transactionList) {
-      if (e.amount > 0.0) {
-        ret += e.amount;
-      }
-    }
+  //   for (var e in transactionList!) {
+  //     if (e.amount! > 0.0) {
+  //       ret += e.amount!;
+  //     }
+  //   }
 
-    return ret;
-  }
-}
-
-class Testing {
-  static final sampleLedgerData = List<LedgerEntry>.filled(
-      30,
-      LedgerEntry(
-          date: DateTime.now(),
-          transactionList:
-              List<TransactionModel>.filled(1, TransactionModel(date: DateTime.now(), amount: 150))
-      )
-  );
+  //   return ret;
+  // }
 }

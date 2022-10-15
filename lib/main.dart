@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_ledger/views/homepage_view.dart';
 import 'dart:io';
 
+import 'globals/themes.dart';
+
 void main() async {
-  await Hive.initFlutter();
-  runApp(MyApp());
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
@@ -22,34 +28,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _controller.dispose();
-    Hive.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Entry Point',
-      home: FutureBuilder(
-          future: Hive.openBox('profiles'),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return Text(snapshot.error.toString());
-              } else {
-                return const HomePage();
-              }
-            } else {
-              return const Scaffold();
-            }
-          }),
+      theme:
+          ThemeData(useMaterial3: true, colorScheme: Styler.lightColorScheme),
+      darkTheme:
+          ThemeData(useMaterial3: true, colorScheme: Styler.darkColorScheme),
+      home: const HomePage(),
     );
   }
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  State<MyApp> createState() => _MyAppState();
 }
