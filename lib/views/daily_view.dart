@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/transaction_model.dart';
+import 'package:simple_ledger/models/transaction_model.dart';
+import 'package:simple_ledger/views/dialogs/transaction_menu_dialog.dart';
+import '../controllers/daily_view_controller.dart';
+import '../models/transaction_entry_model.dart';
+
+class DailyViewPage extends StatefulWidget {
+  final DateTime date;
+
+  const DailyViewPage({Key? key, required this.date}) : super(key: key);
+
+  @override
+  State<DailyViewPage> createState() => _DailyViewPageState();
+}
 
 class _DailyViewPageState extends State<DailyViewPage>
     with SingleTickerProviderStateMixin {
@@ -20,16 +32,32 @@ class _DailyViewPageState extends State<DailyViewPage>
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Daily View",
-      home: Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            title: const Text("Daily View"),
-          ),
-          body: Card(
+    return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          title: const Text("Daily View"),
+        ),
+        body: GestureDetector(
+          onPanUpdate: (details) {
+            // Swiping in right direction.
+            if (details.delta.dx > 0) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return DailyViewPage(
+                    date: widget.date.subtract(const Duration(days: 1)));
+              }));
+            }
+
+            // Swiping in left direction.
+            if (details.delta.dx < 0) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return DailyViewPage(
+                    date: widget.date.add(const Duration(days: 1)));
+              }));
+            }
+          },
+          child: Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: Column(
               children: [
@@ -38,27 +66,35 @@ class _DailyViewPageState extends State<DailyViewPage>
                   padding: const EdgeInsets.all(13.0),
                   child: Center(
                     child: Text(
-                      DateFormat.yMMMMd().format(DateTime.now()),
+                      DateFormat.yMMMMd().format(widget.date),
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
                 ),
 
                 //BODY
-                Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Column(
-                    children: [
-                      // TransactionRow(entry: Testing.sampleExpenseData),
-                      // TransactionRow(entry: Testing.sampleIncomeData),
-                    ],
-                  ),
-                ),
-
-                const Expanded(
-                    child: Padding(
-                  padding: EdgeInsets.zero,
-                )),
+                Expanded(
+                    child: FutureBuilder(
+                        future: DailyViewController.getTransactionDataForDay(
+                            widget.date),
+                        builder: ((BuildContext context,
+                            AsyncSnapshot<List<Transaction>> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            if (snapshot.hasData) {
+                              return ListView(
+                                children: [
+                                  ...snapshot.data!.map((e) {
+                                    return TransactionRow(
+                                      entry: e,
+                                    );
+                                  })
+                                ],
+                              );
+                            }
+                          }
+                          return const CircularProgressIndicator();
+                        }))),
 
                 //FOOTER - "Add" button
                 Padding(
@@ -76,23 +112,20 @@ class _DailyViewPageState extends State<DailyViewPage>
                           showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return const TransactionMenuDialog();
-                              })
+                                return TransactionMenuDialog(date: widget.date);
+                              }).then((value) async {
+                            await DailyViewController.getTransactionDataForDay(
+                                widget.date);
+                            setState(() {});
+                          })
                         },
                       )),
                 )
               ],
             ),
-          )),
-    );
+          ),
+        ));
   }
-}
-
-class DailyViewPage extends StatefulWidget {
-  const DailyViewPage({Key? key}) : super(key: key);
-
-  @override
-  State<DailyViewPage> createState() => _DailyViewPageState();
 }
 
 //==============================================================================
@@ -111,145 +144,44 @@ class TransactionRow extends StatefulWidget {
 class _TransactionRowState extends State<TransactionRow> {
   @override
   Widget build(BuildContext context) {
-    //for income
-    if (widget.entry.amount! > 0.0) {
-      return Container(
-          decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.background))),
-          child: InkWell(
-              child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: ListTile(
-              leading: Icon(
-                Icons.monetization_on,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: Text(widget.entry.description!),
-              trailing: Text("+${widget.entry.amount}"),
+    return Container(
+        decoration: BoxDecoration(
+            border: Border(
+                bottom: (widget.entry.amount! > 0.0)
+                    ? const BorderSide(color: Colors.green)
+                    : const BorderSide(color: Colors.red))),
+        child: InkWell(
+            child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: ListTile(
+            leading: Icon(
+              Icons.monetization_on,
+              color: (widget.entry.amount! > 0) ? Colors.green : Colors.red,
             ),
-          )));
-    }
-    //for expense
-    else {
-      return Container(
-          decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(
-                      color: Theme.of(context).colorScheme.errorContainer))),
-          child: InkWell(
-              child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: ListTile(
-                leading: Icon(
-                  Icons.monetization_on,
-                  color: Theme.of(context).colorScheme.errorContainer,
-                ),
-                title: Text(widget.entry.description!),
-                trailing: Text(widget.entry.amount.toString())),
-          )));
-    }
-  }
-}
-
-///A dialog for the user to choose which type of tranaction they want to input.
-class TransactionMenuDialog extends StatefulWidget {
-  const TransactionMenuDialog({super.key});
-
-  @override
-  State<TransactionMenuDialog> createState() => _TransactionMenuDialogState();
-}
-
-class _TransactionMenuDialogState extends State<TransactionMenuDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-        title: const Center(
-          child: Text("Transaction Type"),
-        ),
-        content: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const StandardTransactionDialog();
-                          });
-                    },
-                    child: const Text("Standard Transaction")),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 8.0)),
-                ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("Repeating Transaction")),
-              ],
-            ),
+            title: widget.entry.description != null
+                ? Text(
+                    widget.entry.description!,
+                    style: TextStyle(
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer),
+                  )
+                : (widget.entry.amount! > 0)
+                    ? const Text(
+                        "Income",
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    : const Text(
+                        "Expense",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+            trailing: Text(
+                (widget.entry.amount! > 0.0)
+                    ? "+${widget.entry.amount}"
+                    : "${widget.entry.amount}",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary)),
           ),
-        ));
+        )));
   }
 }
-
-///A dialog box for inputting a once-off transaction
-class StandardTransactionDialog extends StatefulWidget {
-  const StandardTransactionDialog({super.key});
-
-  @override
-  State<StandardTransactionDialog> createState() =>
-      _StandardTransactionDialogState();
-}
-
-class _StandardTransactionDialogState extends State<StandardTransactionDialog> {
-  late DateTime date = DateTime.now();
-  late String dateStr = "${date.day}-${date.month}-${date.year}";
-  late double amount;
-  late String description;
-
-  Future<void> _selectDate(BuildContext context) async {
-    final picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000, 1),
-        lastDate: DateTime(2101));
-
-    if (picked != null && picked != date) {
-      setState(() {
-        date = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-        title: const Center(
-          child: Text("New Transaction"),
-        ),
-        content: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text("Date"),
-              TextFormField(
-                initialValue: dateStr,
-                textAlign: TextAlign.center,
-                onTap: () {
-                  _selectDate(context);
-                },
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(13.0)),
-                    focusColor: Theme.of(context).colorScheme.primary),
-              ),
-            ],
-          ),
-        ));
-  }
-}
-
 //endregion

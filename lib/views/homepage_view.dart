@@ -86,7 +86,8 @@ class _HomePage extends State<HomePage> {
                               onPressed: () => {
                                     Navigator.push(context,
                                         MaterialPageRoute(builder: (context) {
-                                      return const DailyViewPage();
+                                      return DailyViewPage(
+                                          date: DateTime.now());
                                     }))
                                   },
                               icon: const Icon(

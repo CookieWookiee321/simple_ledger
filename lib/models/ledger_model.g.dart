@@ -26,7 +26,7 @@ const LedgerEntrySchema = CollectionSchema(
       id: 1,
       name: r'transactions',
       type: IsarType.objectList,
-      target: r'Transaction',
+      target: r'TransactionEntry',
     )
   },
   estimateSize: _ledgerEntryEstimateSize,
@@ -36,7 +36,7 @@ const LedgerEntrySchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {},
-  embeddedSchemas: {r'Transaction': TransactionSchema},
+  embeddedSchemas: {r'TransactionEntry': TransactionEntrySchema},
   getId: _ledgerEntryGetId,
   getLinks: _ledgerEntryGetLinks,
   attach: _ledgerEntryAttach,
@@ -54,11 +54,11 @@ int _ledgerEntryEstimateSize(
     if (list != null) {
       bytesCount += 3 + list.length * 3;
       {
-        final offsets = allOffsets[Transaction]!;
+        final offsets = allOffsets[TransactionEntry]!;
         for (var i = 0; i < list.length; i++) {
           final value = list[i];
           bytesCount +=
-              TransactionSchema.estimateSize(value, offsets, allOffsets);
+              TransactionEntrySchema.estimateSize(value, offsets, allOffsets);
         }
       }
     }
@@ -73,10 +73,10 @@ void _ledgerEntrySerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.amount);
-  writer.writeObjectList<Transaction>(
+  writer.writeObjectList<TransactionEntry>(
     offsets[1],
     allOffsets,
-    TransactionSchema.serialize,
+    TransactionEntrySchema.serialize,
     object.transactions,
   );
 }
@@ -90,11 +90,11 @@ LedgerEntry _ledgerEntryDeserialize(
   final object = LedgerEntry();
   object.amount = reader.readDoubleOrNull(offsets[0]);
   object.id = id;
-  object.transactions = reader.readObjectList<Transaction>(
+  object.transactions = reader.readObjectList<TransactionEntry>(
     offsets[1],
-    TransactionSchema.deserialize,
+    TransactionEntrySchema.deserialize,
     allOffsets,
-    Transaction(),
+    TransactionEntry(),
   );
   return object;
 }
@@ -109,11 +109,11 @@ P _ledgerEntryDeserializeProp<P>(
     case 0:
       return (reader.readDoubleOrNull(offset)) as P;
     case 1:
-      return (reader.readObjectList<Transaction>(
+      return (reader.readObjectList<TransactionEntry>(
         offset,
-        TransactionSchema.deserialize,
+        TransactionEntrySchema.deserialize,
         allOffsets,
-        Transaction(),
+        TransactionEntry(),
       )) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -457,7 +457,7 @@ extension LedgerEntryQueryFilter
 extension LedgerEntryQueryObject
     on QueryBuilder<LedgerEntry, LedgerEntry, QFilterCondition> {
   QueryBuilder<LedgerEntry, LedgerEntry, QAfterFilterCondition>
-      transactionsElement(FilterQuery<Transaction> q) {
+      transactionsElement(FilterQuery<TransactionEntry> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'transactions');
     });
@@ -532,7 +532,7 @@ extension LedgerEntryQueryProperty
     });
   }
 
-  QueryBuilder<LedgerEntry, List<Transaction>?, QQueryOperations>
+  QueryBuilder<LedgerEntry, List<TransactionEntry>?, QQueryOperations>
       transactionsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'transactions');

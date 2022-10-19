@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
-import 'package:simple_ledger/models/transaction_model.dart';
+import 'package:simple_ledger/models/transaction_entry_model.dart';
 
 part 'ledger_model.g.dart';
 
@@ -8,10 +8,11 @@ part 'ledger_model.g.dart';
 class LedgerEntry {
   Id id = Isar.autoIncrement;
   double? amount;
-  List<Transaction>? transactions;
+  @embedded
+  List<TransactionEntry>? transactions;
 
   LedgerEntry();
-  LedgerEntry.withData(this.amount, List<Transaction>? transactions);
+  LedgerEntry.withData(this.amount, List<TransactionEntry>? transactions);
 
   // String get dateShortString {
   //   var format = DateFormat('dd');
