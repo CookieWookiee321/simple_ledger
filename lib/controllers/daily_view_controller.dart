@@ -1,10 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:isar/isar.dart';
-import 'package:simple_ledger/models/profile_model.dart';
-import 'package:simple_ledger/models/transaction_entry_model.dart';
 
 import '../models/transaction_model.dart';
-import '../views/daily_view.dart';
 
 class DailyViewController extends ChangeNotifier {
   static Future<List<Transaction>> getTransactionDataForDay(
@@ -45,17 +42,12 @@ class DailyViewController extends ChangeNotifier {
     });
   }
 
-  static Future<List<TransactionEntry>?> getTransactionsFromDate() async {
-    return await null;
-  }
+  static Future<void> deleteTransaction(int id) async {
+    final isar = Isar.getInstance("transaction_db") ??
+        await Isar.open([TransactionSchema], name: "transaction_db");
 
-  static Future<List<TransactionEntry>?> getTransactionsFromAmount(
-      double amount) async {
-    return await null;
-  }
-
-  static Future<List<TransactionEntry>?> getTransactionsFromDescription(
-      String description) async {
-    return await null;
+    await isar.writeTxn(() async {
+      await isar.transactions.delete(id);
+    });
   }
 }

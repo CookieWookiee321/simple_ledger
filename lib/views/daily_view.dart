@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:simple_ledger/models/transaction_model.dart';
 import 'package:simple_ledger/views/dialogs/transaction_menu_dialog.dart';
 import '../controllers/daily_view_controller.dart';
-import '../models/transaction_entry_model.dart';
 
 class DailyViewPage extends StatefulWidget {
   final DateTime date;
@@ -17,6 +16,7 @@ class DailyViewPage extends StatefulWidget {
 class _DailyViewPageState extends State<DailyViewPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  final Map<int, bool> _items = {};
 
   @override
   void initState() {
@@ -32,6 +32,33 @@ class _DailyViewPageState extends State<DailyViewPage>
 
   @override
   Widget build(BuildContext context) {
+    // Offset? _globalPosition;
+
+    // Future<void> _showContextMenu() async {
+    //   double x = _globalPosition!.dx;
+    //   double y = _globalPosition!.dy;
+
+    //   await showMenu(
+    //       context: context,
+    //       position: RelativeRect.fromLTRB(x, y, 0, 0),
+    //       items: [
+    //         const PopupMenuItem(value: 0, child: Text("Update")),
+    //         const PopupMenuItem(
+    //           value: 1,
+    //           child: Text("Delete"),
+    //         )
+    //       ]).then((value) {
+    //     switch (value) {
+    //       case 0: //update
+    //         //TODO:
+    //         break;
+    //       case 1: // delete
+    //         DailyViewController.deleteTransaction(widget.entry.id);
+    //         break;
+    //     }
+    //   });
+    // }
+
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
@@ -82,15 +109,7 @@ class _DailyViewPageState extends State<DailyViewPage>
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
                             if (snapshot.hasData) {
-                              return ListView(
-                                children: [
-                                  ...snapshot.data!.map((e) {
-                                    return TransactionRow(
-                                      entry: e,
-                                    );
-                                  })
-                                ],
-                              );
+                              return TransactionListView(data: snapshot.data!);
                             }
                           }
                           return const CircularProgressIndicator();
@@ -131,30 +150,52 @@ class _DailyViewPageState extends State<DailyViewPage>
 //==============================================================================
 // Widgets
 //==============================================================================
-///A row which contains all information about a single transaction.
-class TransactionRow extends StatefulWidget {
-  final Transaction entry;
+class TransactionListView extends StatefulWidget {
+  final List<Transaction> data;
 
-  const TransactionRow({Key? key, required this.entry}) : super(key: key);
+  const TransactionListView({super.key, required this.data});
 
   @override
-  State<TransactionRow> createState() => _TransactionRowState();
+  State<TransactionListView> createState() => _TransactionListViewState();
 }
 
-class _TransactionRowState extends State<TransactionRow> {
+class _TransactionListViewState extends State<TransactionListView> {
   @override
   Widget build(BuildContext context) {
+    return ListView.builder(itemBuilder: ((context, index) {
+      if (widget.data.isNotEmpty & (index < (widget.data!.length))) {
+        return;
+      }
+    }));
+    ;
+  }
+}
+
+///A row which contains all information about a single transaction.
+class TransactionListTile extends StatefulWidget {
+  final Transaction entry;
+
+  const TransactionListTile({Key? key, required this.entry}) : super(key: key);
+
+  @override
+  State<TransactionListTile> createState() => _TransactionListTileState();
+}
+
+class _TransactionListTileState extends State<TransactionListTile> {
+  @override
+  Widget build(BuildContext context) {
+    bool _isChecked = false;
+
     return Container(
         decoration: BoxDecoration(
             border: Border(
                 bottom: (widget.entry.amount! > 0.0)
                     ? const BorderSide(color: Colors.green)
                     : const BorderSide(color: Colors.red))),
-        child: InkWell(
-            child: Padding(
+        child: Padding(
           padding: const EdgeInsets.all(4.0),
-          child: ListTile(
-            leading: Icon(
+          child: CheckboxListTile(
+            secondary: Icon(
               Icons.monetization_on,
               color: (widget.entry.amount! > 0) ? Colors.green : Colors.red,
             ),
@@ -174,14 +215,22 @@ class _TransactionRowState extends State<TransactionRow> {
                         "Expense",
                         style: TextStyle(color: Colors.grey),
                       ),
-            trailing: Text(
+            subtitle: Text(
                 (widget.entry.amount! > 0.0)
                     ? "+${widget.entry.amount}"
                     : "${widget.entry.amount}",
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondary)),
+                    color: Theme.of(context).colorScheme.onSecondaryContainer)),
+            value: false,
+            onChanged: (isChecked) {
+              setState(() {
+                if (isChecked!) {
+                  //TODO:
+                } else {}
+              });
+            },
           ),
-        )));
+        ));
   }
 }
 //endregion
